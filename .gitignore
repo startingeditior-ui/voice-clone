@@ -30,3 +30,6 @@ Thumbs.db
 
 Retrieval-based-Voice-Conversion-WebUI/
 YourTTS/
+infer-web.pyi
+rvc_requirements_locked.txt
+templates/
