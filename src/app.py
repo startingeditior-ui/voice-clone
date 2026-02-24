@@ -30,7 +30,7 @@ except ImportError:
     print("Warning: Failed to pre-load transformers. This might be expected if handled by TTS.")
 
 from src.transcribe import transcribe_audio
-from src.synthesize import synthesize
+from src.synthesize import synthesize, mimic_voice
 
 app = FastAPI()
 
@@ -118,6 +118,78 @@ async def process_voice(
         print(f"Error in process_voice: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/mimic-voice")
+async def mimic_voice_endpoint(
+    target_voice_file: UploadFile = File(...),
+    performance_file: UploadFile = File(None),
+    custom_text: str = Form(None)
+):
+    """
+    Smart Mimic: accepts EITHER custom_text OR performance_file (or both).
+    - custom_text provided → synthesize it directly with XTTS using target voice (fast)
+    - performance_file provided → transcribe it first, then synthesize with target voice
+    - Both provided → custom_text takes priority (skip transcription)
+    """
+    try:
+        file_id = str(uuid.uuid4())
+
+        # Save target voice audio (the person we want to sound like)
+        target_filename = f"{file_id}_target_{target_voice_file.filename}"
+        target_path = os.path.join(UPLOAD_DIR, target_filename)
+        with open(target_path, "wb") as buffer:
+            shutil.copyfileobj(target_voice_file.file, buffer)
+
+        output_filename = f"{file_id}_smart_mimic.wav"
+        output_path = os.path.join(OUTPUT_DIR, output_filename)
+
+        text_used = custom_text.strip() if custom_text and custom_text.strip() else None
+
+        if text_used:
+            # Fast path: use typed text directly — no transcription needed
+            print(f"[Smart Mimic] Using custom text: {text_used[:80]}..." if len(text_used) > 80 else f"[Smart Mimic] Using custom text: {text_used}")
+            from src.synthesize import tts as _tts
+            _tts.tts_to_file(
+                text=text_used,
+                speaker_wav=target_path,
+                language="en",
+                file_path=output_path
+            )
+            transcribed_text = text_used
+
+        elif performance_file and performance_file.filename:
+            # Transcription path: transcribe performance, then synthesize
+            perf_filename = f"{file_id}_perf_{performance_file.filename}"
+            perf_path = os.path.join(UPLOAD_DIR, perf_filename)
+            with open(perf_path, "wb") as buffer:
+                shutil.copyfileobj(performance_file.file, buffer)
+
+            print(f"[Smart Mimic] Transcribing performance: {perf_path}")
+            _, transcribed_text = mimic_voice(
+                performance_wav=perf_path,
+                target_voice_wav=target_path,
+                output_path=output_path
+            )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Provide either custom_text or a performance_file to process."
+            )
+
+        if not os.path.exists(output_path):
+            raise HTTPException(status_code=500, detail="Smart Mimic failed to produce output file")
+
+        return {
+            "output_url": f"/audio/output/{output_filename}",
+            "transcribed_text": transcribed_text
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/audio/output/{filename}")
 async def get_audio(filename: str):
     file_path = os.path.join(OUTPUT_DIR, filename)
@@ -130,7 +202,10 @@ async def convert_voice(
     performance_file: UploadFile = File(...),
     target_voice_file: UploadFile = File(...),
     pitch_shift: int = Form(0),
-    index_rate: float = Form(0.75)
+    index_rate: float = Form(0.75),
+    filter_radius: int = Form(3),
+    rms_mix_rate: float = Form(0.25),
+    protect: float = Form(0.33)
 ):
     try:
         file_id = str(uuid.uuid4())
@@ -169,7 +244,10 @@ async def convert_voice(
             source_path=perf_path,
             output_path=output_path,
             f0_up_key=pitch_shift,
-            index_rate=index_rate
+            index_rate=index_rate,
+            filter_radius=filter_radius,
+            rms_mix_rate=rms_mix_rate,
+            protect=protect
         )
 
         return {

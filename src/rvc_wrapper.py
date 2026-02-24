@@ -55,7 +55,8 @@ class RVCWrapper:
             os.chdir(project_root)
         self.current_model = model_name
 
-    def convert(self, source_path, output_path, f0_up_key=0, f0_method="rmvpe", index_rate=0.75):
+    def convert(self, source_path, output_path, f0_up_key=0, f0_method="rmvpe",
+                index_rate=0.75, filter_radius=3, rms_mix_rate=0.25, protect=0.33):
         """
         Convert source audio using the loaded target voice.
 
@@ -64,7 +65,10 @@ class RVCWrapper:
             output_path: Path to save the converted audio
             f0_up_key: Pitch shift in semitones
             f0_method: Pitch extraction method ('pm', 'harvest', 'crepe', 'rmvpe')
-            index_rate: Index rate for feature retrieval (0.0 - 1.0)
+            index_rate: Index rate for feature retrieval (0.0 - 1.0). Higher = more like model voice.
+            filter_radius: Median filter for pitch smoothing (1-7). Higher = smoother.
+            rms_mix_rate: Volume envelope mix (0.0 - 1.0). Lower = keep original dynamics.
+            protect: Consonant/breath protection (0.0 - 0.5). Lower = more protection.
         """
         if not self.current_model:
             raise ValueError("No model loaded. Call load_model() first.")
@@ -88,10 +92,10 @@ class RVCWrapper:
                 "",          # file_index path
                 "",          # file_index2
                 index_rate,
-                3,           # filter_radius
+                filter_radius,
                 0,           # resample_sr (0 = no resample)
-                0.25,        # rms_mix_rate
-                0.33         # protect
+                rms_mix_rate,
+                protect
             )
 
             if "Success" in info and audio_opt is not None:

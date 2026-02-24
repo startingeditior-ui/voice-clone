@@ -15,6 +15,8 @@
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --accent-glow: rgba(99, 102, 241, 0.2);
+            --green: #22c55e;
+            --purple: #8b5cf6;
         }
 
         * {
@@ -34,13 +36,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             padding: 2rem;
         }
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 640px;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -77,13 +79,96 @@
             font-weight: 300;
         }
 
+        /* ── Mode Toggle ── */
+        .mode-toggle {
+            display: flex;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 2rem;
+        }
+
+        .mode-toggle button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* ── Sub-mode Pills (Smart Mimic / RVC Mimic) ── */
+        .sub-mode-bar {
+            display: none;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .sub-mode-bar.visible {
+            display: flex;
+        }
+
+        .sub-mode-bar button {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.82rem;
+            font-weight: 600;
+            background: transparent;
+            color: var(--text-dim);
+        }
+
+        .sub-mode-bar button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ── Info Banner ── */
+        .info-banner {
+            display: none;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.83rem;
+            color: var(--text-dim);
+            text-align: left;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .info-banner.visible {
+            display: block;
+        }
+
+        .info-banner.green {
+            background: rgba(34, 197, 94, 0.08);
+            border-left: 4px solid var(--green);
+        }
+
+        .info-banner.purple {
+            background: rgba(139, 92, 246, 0.08);
+            border-left: 4px solid var(--purple);
+        }
+
+        .info-banner strong {
+            color: var(--text-main);
+        }
+
+        /* ── Upload Sections ── */
         .upload-section {
             border: 2px dashed rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 2rem;
+            padding: 1.75rem;
             transition: all 0.3s ease;
             cursor: pointer;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             background: rgba(255, 255, 255, 0.02);
         }
 
@@ -92,21 +177,44 @@
             background: rgba(99, 102, 241, 0.05);
         }
 
+        .upload-section.perf-upload {
+            border-color: rgba(139, 92, 246, 0.35);
+        }
+
+        .upload-section.perf-upload:hover {
+            border-color: var(--purple);
+            background: rgba(139, 92, 246, 0.06);
+        }
+
         .upload-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
             display: block;
+        }
+
+        .upload-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-name {
+            font-size: 0.92rem;
+            color: var(--text-main);
         }
 
         input[type="file"] {
             display: none;
         }
 
+        /* ── Controls ── */
         .controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .control-group {
@@ -123,7 +231,8 @@
             letter-spacing: 0.05em;
         }
 
-        select {
+        select,
+        textarea {
             width: 100%;
             background: rgba(15, 23, 42, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -135,10 +244,16 @@
             transition: border-color 0.2s;
         }
 
-        select:focus {
+        select:focus,
+        textarea:focus {
             border-color: var(--primary);
         }
 
+        textarea {
+            resize: none;
+        }
+
+        /* ── Buttons ── */
         button.btn-primary {
             width: 100%;
             background: var(--primary);
@@ -151,6 +266,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px var(--accent-glow);
+            margin-top: 1.5rem;
         }
 
         button.btn-primary:hover:not(:disabled) {
@@ -164,6 +280,42 @@
             cursor: not-allowed;
         }
 
+        /* ── Steps indicator (S2S) ── */
+        .steps-row {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .steps-row.visible {
+            display: flex;
+        }
+
+        .step-badge {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--primary);
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.72rem;
+            flex-shrink: 0;
+        }
+
+        .step-arrow {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+        }
+
+        /* ── Result Section ── */
         .result-section {
             margin-top: 2rem;
             padding-top: 2rem;
@@ -176,11 +328,81 @@
             animation: fadeIn 0.5s ease;
         }
 
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .audio-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .audio-card.input-card {
+            border-top: 3px solid var(--purple);
+        }
+
+        .audio-card.output-card {
+            border-top: 3px solid var(--primary);
+        }
+
+        .audio-card-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .audio-card.input-card .audio-card-label {
+            color: #a78bfa;
+        }
+
+        .audio-card.output-card .audio-card-label {
+            color: #818cf8;
+        }
+
+        .audio-card-icon {
+            font-size: 1.6rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
         audio {
             width: 100%;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             border-radius: 8px;
             filter: invert(100%) hue-rotate(180deg) brightness(1.5);
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #818cf8;
+            border-radius: 10px;
+            padding: 0.6rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-download:hover {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-1px);
         }
 
         @keyframes fadeIn {
@@ -217,135 +439,305 @@
             font-size: 0.9rem;
             color: var(--text-dim);
         }
+
+        .status-msg.error {
+            color: #f87171;
+        }
+
+        @media (max-width: 480px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
-
     <div class="container">
         <h1>VoiceQuest</h1>
-        <p class="subtitle">Clone your voice with precision and style</p>
+        <p class="subtitle">Clone any voice — accent, tone, and identity</p>
 
-        <!-- Mode Toggle -->
-        <div
-            style="display: flex; background: rgba(15, 23, 42, 0.5); border-radius: 12px; padding: 4px; margin-bottom: 2rem;">
-            <button onclick="setMode('tts')" id="ttsToggle"
-                style="flex: 1; padding: 0.75rem; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; background: var(--primary); color: white;">Text-to-Speech</button>
-            <button onclick="setMode('s2s')" id="s2sToggle"
-                style="flex: 1; padding: 0.75rem; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; background: transparent; color: var(--text-dim);">Mimicry
-                Mode (S2S)</button>
+        <!-- ── Main Mode Toggle ── -->
+        <div class="mode-toggle">
+            <button onclick="setMode('tts')" id="ttsToggle" style="background: var(--primary); color: white;">🗣
+                Text-to-Speech</button>
+            <button onclick="setMode('s2s')" id="s2sToggle" style="background: transparent; color: var(--text-dim);">🎭
+                Mimicry Mode</button>
         </div>
 
-        <!-- Target Voice Upload (Always needed) -->
-        <div class="upload-section" onclick="document.getElementById('voiceInput').click()">
-            <span class="upload-icon">👤</span>
-            <span id="fileName">Target Voice (to clone)</span>
-            <input type="file" id="voiceInput" accept="audio/*" onchange="handleFileSelect(event)">
+        <!-- ── S2S Sub-mode Pills ── -->
+        <div class="sub-mode-bar" id="subModeBar">
+            <button id="smartMimicBtn" class="active" onclick="setMimicryMode('smart')">⚡ Smart Mimic
+                (Recommended)</button>
+            <button id="rvcMimicBtn" onclick="setMimicryMode('rvc')">🎛 RVC Mimic (Advanced)</button>
         </div>
 
-        <!-- Performance Upload (S2S only) -->
-        <div id="performanceSection" class="upload-section" onclick="document.getElementById('perfInput').click()"
-            style="display: none; border-color: #8b5cf6;">
-            <span class="upload-icon">🎙️</span>
-            <span id="perfName">Your Performance (for accent/tone)</span>
-            <input type="file" id="perfInput" accept="audio/*" onchange="handlePerfSelect(event)">
+        <!-- ── Info Banners ── -->
+        <div class="info-banner green visible" id="ttsInfo">
+            <strong>How it works:</strong> Upload a voice sample, type custom text (or leave blank to clone speech from
+            the audio), and we'll synthesize the voice.
+        </div>
+        <div class="info-banner green" id="smartMimicInfo">
+            <strong>Smart Mimic — no model needed!</strong><br>
+            <span style="display:block; margin-top:0.5rem;">
+                <b>Step 1 ①</b> — Upload a clip of the <em>person you want to mimic</em> (6–30 sec is ideal).<br>
+                <b>Step 2 ②</b> — Upload <em>your own recording</em> saying the content you want them to "say".<br>
+                The output will sound like the target person speaking your words, with their accent.
+            </span>
+        </div>
+        <div class="info-banner purple" id="rvcMimicInfo">
+            <strong>RVC Mimic — requires a trained model.</strong><br>
+            Upload your performance audio and a target voice sample. The server must have a <code>.pth</code> model in
+            <code>assets/weights/</code>.
         </div>
 
-        <div class="control-group" id="ttsInputGroup" style="margin-bottom: 2rem;">
-            <label>Content to Speak (Optional)</label>
-            <textarea id="customText" placeholder="If left empty, we'll transcribe the target audio for you..."
-                style="width: 100%; height: 100px; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 1rem; color: white; resize: none;"></textarea>
-        </div>
-
-        <div class="controls" id="ttsControls">
-            <div class="control-group">
-                <label>Accent</label>
-                <select id="accent">
-                    <option value="neutral">Neutral</option>
-                    <option value="american">American</option>
-                    <option value="british">British</option>
-                    <option value="indian">Indian</option>
-                </select>
+        <!-- ═══════════════════════════════════════════
+         TTS MODE
+    ═══════════════════════════════════════════ -->
+        <div id="ttsSection">
+            <div class="upload-section" onclick="document.getElementById('voiceInputTts').click()">
+                <span class="upload-icon">👤</span>
+                <div class="upload-label">Target Voice (to clone)</div>
+                <div class="upload-name" id="fileNameTts">Click to upload audio file</div>
+                <input type="file" id="voiceInputTts" accept="audio/*" onchange="handleFileSelect(event, 'tts')">
             </div>
-            <div class="control-group">
-                <label>Tone</label>
-                <select id="tone">
-                    <option value="calm">Calm</option>
-                    <option value="energetic">Energetic</option>
-                    <option value="dramatic">Dramatic</option>
-                </select>
-            </div>
-        </div>
 
-        <div class="controls" id="s2sControls" style="display: none; grid-template-columns: 1fr 1fr;">
-            <div
-                style="grid-column: span 2; margin-bottom: 1rem; padding: 0.75rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 0.85rem; color: var(--text-dim); text-align: left;">
-                <strong>Note:</strong> Mimicry mode requires a trained RVC model (.pth) to be present on the server.
+            <div class="control-group" style="margin-bottom: 1.5rem;">
+                <label>Content to Speak (Optional)</label>
+                <textarea id="customText" rows="3"
+                    placeholder="Leave empty to clone speech from the uploaded audio..."></textarea>
             </div>
-            <div class="control-group">
-                <label>Pitch Shift</label>
-                <select id="pitchShift">
-                    <option value="-12">-1 Octave</option>
-                    <option value="0" selected>Neutral</option>
-                    <option value="12">+1 Octave</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Mimicry Intensity</label>
-                <select id="indexRate">
-                    <option value="0.5">Natural</option>
-                    <option value="0.75" selected>High (Recommended)</option>
-                    <option value="1.0">Maximum</option>
-                </select>
+
+            <div class="controls" id="ttsControls">
+                <div class="control-group">
+                    <label>Accent</label>
+                    <select id="accent">
+                        <option value="neutral">Neutral</option>
+                        <option value="american">American</option>
+                        <option value="british">British</option>
+                        <option value="indian">Indian</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Tone</label>
+                    <select id="tone">
+                        <option value="calm">Calm</option>
+                        <option value="energetic">Energetic</option>
+                        <option value="dramatic">Dramatic</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <button class="btn-primary" id="processBtn" onclick="processVoice()" style="margin-top: 2rem;">Clone
-            Voice</button>
+        <!-- ═══════════════════════════════════════════
+         SMART MIMIC MODE
+    ═══════════════════════════════════════════ -->
+        <div id="smartMimicSection" style="display:none;">
+            <div class="steps-row visible">
+                <span class="step-badge">1</span>
+                <span>Target voice</span>
+                <span class="step-arrow">→</span>
+                <span class="step-badge">2</span>
+                <span>Audio <em>or</em> Text</span>
+                <span class="step-arrow">→</span>
+                <span>✨ Mimic output</span>
+            </div>
+
+            <!-- Step 1: Target person's voice -->
+            <div class="upload-section" onclick="document.getElementById('targetVoiceSmart').click()">
+                <span class="upload-icon">👤</span>
+                <div class="upload-label">① Target Person's Voice (who to mimic)</div>
+                <div class="upload-name" id="targetVoiceSmartName">Upload a clip of the person you want to mimic</div>
+                <input type="file" id="targetVoiceSmart" accept="audio/*"
+                    onchange="handleFileSelect(event, 'smart-target')">
+            </div>
+
+            <!-- Step 2a: Custom text input -->
+            <div class="control-group" style="margin-bottom: 0.75rem; text-align: left;">
+                <label>② What to Say (Type your text here...)</label>
+                <textarea id="smartMimicText" rows="3" style="width:100%; background:rgba(15,23,42,0.5); border:1px solid rgba(139,92,246,0.35);
+                           border-radius:12px; padding:1rem; color:white; resize:none; outline:none;
+                           transition:border-color 0.2s;" onfocus="this.style.borderColor='#8b5cf6'"
+                    onblur="this.style.borderColor='rgba(139,92,246,0.35)'"
+                    placeholder="Type the words you want the target person to say..."></textarea>
+            </div>
+
+            <!-- Divider -->
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+                <div style="flex:1; height:1px; background:rgba(255,255,255,0.08);"></div>
+                <span style="font-size:0.78rem; color:var(--text-dim); font-weight:600;">OR upload performance
+                    audio</span>
+                <div style="flex:1; height:1px; background:rgba(255,255,255,0.08);"></div>
+            </div>
+
+            <!-- Step 2b: User's own performance audio -->
+            <div class="upload-section perf-upload" onclick="document.getElementById('perfInputSmart').click()">
+                <span class="upload-icon">🎙️</span>
+                <div class="upload-label">② Your Performance Audio (optional if text is typed above)</div>
+                <div class="upload-name" id="perfInputSmartName">Upload your own recording to transcribe</div>
+                <input type="file" id="perfInputSmart" accept="audio/*"
+                    onchange="handleFileSelect(event, 'smart-perf')">
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+         RVC MIMIC MODE
+    ═══════════════════════════════════════════ -->
+        <div id="rvcMimicSection" style="display:none;">
+            <div class="upload-section" onclick="document.getElementById('voiceInputRvc').click()">
+                <span class="upload-icon">👤</span>
+                <div class="upload-label">Target Voice (to clone)</div>
+                <div class="upload-name" id="fileNameRvc">Upload target voice audio</div>
+                <input type="file" id="voiceInputRvc" accept="audio/*" onchange="handleFileSelect(event, 'rvc-target')">
+            </div>
+
+            <div class="upload-section perf-upload" onclick="document.getElementById('perfInputRvc').click()">
+                <span class="upload-icon">🎙️</span>
+                <div class="upload-label">Your Performance (accent/tone to preserve)</div>
+                <div class="upload-name" id="perfInputRvcName">Upload your performance audio</div>
+                <input type="file" id="perfInputRvc" accept="audio/*" onchange="handleFileSelect(event, 'rvc-perf')">
+            </div>
+
+            <div class="controls" style="margin-top: 1rem;">
+                <div class="control-group">
+                    <label>Pitch Shift</label>
+                    <select id="pitchShift">
+                        <option value="-12">-1 Octave</option>
+                        <option value="-6">-Half Octave</option>
+                        <option value="0" selected>Neutral</option>
+                        <option value="6">+Half Octave</option>
+                        <option value="12">+1 Octave</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Voice Similarity</label>
+                    <select id="indexRate">
+                        <option value="0.5">Natural (0.5)</option>
+                        <option value="0.75" selected>High (0.75) ★</option>
+                        <option value="1.0">Maximum (1.0)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Pitch Smoothing</label>
+                    <select id="filterRadius">
+                        <option value="1">Minimal (1)</option>
+                        <option value="3" selected>Balanced (3) ★</option>
+                        <option value="5">Smooth (5)</option>
+                        <option value="7">Very Smooth (7)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Consonant Protection</label>
+                    <select id="protect">
+                        <option value="0.5">Max Protect (0.5)</option>
+                        <option value="0.33" selected>Balanced (0.33) ★</option>
+                        <option value="0.1">Minimal (0.1)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Process Button ── -->
+        <button class="btn-primary" id="processBtn" onclick="processVoice()">🗣 Clone Voice</button>
 
         <div class="loading-spinner" id="loader"></div>
         <p class="status-msg" id="status"></p>
 
+        <!-- ── Result Section ── -->
         <div class="result-section" id="result">
-            <p id="resultLabel" style="margin-bottom: 1rem; font-weight: 600;">Success! Listen to your clone:</p>
-            <audio id="audioPlayer" controls></audio>
+            <p id="resultLabel" style="margin-bottom: 1rem; font-weight: 600; font-size: 1rem;">
+                ✅ Done! Compare Input vs Output:
+            </p>
+
+            <div class="comparison-grid">
+                <div class="audio-card input-card">
+                    <span class="audio-card-icon">🎤</span>
+                    <div class="audio-card-label" id="inputCardLabel">Original Input</div>
+                    <audio id="inputPlayer" controls></audio>
+                </div>
+                <div class="audio-card output-card">
+                    <span class="audio-card-icon">✨</span>
+                    <div class="audio-card-label" id="outputCardLabel">Cloned Output</div>
+                    <audio id="audioPlayer" controls></audio>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a id="downloadBtn" class="btn-download" download="voicequest_output.wav">
+                    ⬇️ Download Output
+                </a>
+            </div>
+
             <div id="transcribedText"
-                style="margin-top: 1rem; font-style: italic; color: var(--text-dim); font-size: 0.9rem;"></div>
+                style="margin-top: 1rem; font-style: italic; color: var(--text-dim); font-size: 0.85rem; text-align: center;">
+            </div>
         </div>
     </div>
 
-
     <script>
-        // Check if opened via file protocol
+        // ──────────────────────────────────────────────
+        // Guard: must be served via the FastAPI server
+        // ──────────────────────────────────────────────
         if (window.location.protocol === 'file:') {
-            alert("Warning: You opened the file directly from disk. Please access the server at http://localhost:8000 for it to work properly.");
             document.body.innerHTML = `
-                <div style="background: #0f172a; color: white; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; padding: 20px; text-align: center;">
-                    <h1 style="color: #ef4444;">⚠️ Connection Error</h1>
-                    <p style="margin: 20px 0; font-size: 1.2rem;">You opened this file directly from your computer folders.</p>
-                    <p style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
-                        To use VoiceQuest, please enter this address in your browser:<br>
-                        <strong style="color: #6366f1; font-size: 1.5rem;">http://localhost:8000</strong>
-                    </p>
-                    <p style="margin-top: 20px; color: #94a3b8;">Make sure your server (python app.py) is running in the background.</p>
-                </div>
-            `;
+            <div style="background:#0f172a;color:white;height:100vh;display:flex;flex-direction:column;
+                        align-items:center;justify-content:center;font-family:sans-serif;padding:20px;text-align:center;">
+                <h1 style="color:#ef4444;">⚠️ Open via Server</h1>
+                <p style="margin:20px 0;font-size:1.2rem;">You opened this file directly from disk.</p>
+                <p style="background:rgba(255,255,255,0.05);padding:15px;border-radius:8px;">
+                    Visit: <strong style="color:#6366f1;font-size:1.5rem;">http://localhost:8000</strong>
+                </p>
+            </div>`;
         }
 
-        let selectedFile = null;
-        let performanceFile = null;
-        let mode = 'tts';
+        // ──────────────────────────────────────────────
+        // State
+        // ──────────────────────────────────────────────
+        let mode = 'tts';           // 'tts' | 's2s'
+        let mimicryMode = 'smart';  // 'smart' | 'rvc'
 
+        let files = {
+            ttsVoice: null,
+            smartTarget: null,
+            smartPerf: null,
+            rvcTarget: null,
+            rvcPerf: null
+        };
+
+        let inputObjectUrl = null;
+
+        // ──────────────────────────────────────────────
+        // File handlers
+        // ──────────────────────────────────────────────
+        function handleFileSelect(event, slot) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const nameMap = {
+                'tts': ['ttsVoice', 'fileNameTts'],
+                'smart-target': ['smartTarget', 'targetVoiceSmartName'],
+                'smart-perf': ['smartPerf', 'perfInputSmartName'],
+                'rvc-target': ['rvcTarget', 'fileNameRvc'],
+                'rvc-perf': ['rvcPerf', 'perfInputRvcName']
+            };
+            const [stateKey, labelId] = nameMap[slot];
+            files[stateKey] = file;
+            document.getElementById(labelId).textContent = '✅ ' + file.name;
+        }
+
+        // ──────────────────────────────────────────────
+        // Mode switching
+        // ──────────────────────────────────────────────
         function setMode(newMode) {
             mode = newMode;
             const ttsToggle = document.getElementById('ttsToggle');
             const s2sToggle = document.getElementById('s2sToggle');
-            const performanceSection = document.getElementById('performanceSection');
-            const ttsInputGroup = document.getElementById('ttsInputGroup');
-            const ttsControls = document.getElementById('ttsControls');
-            const s2sControls = document.getElementById('s2sControls');
-            const processBtn = document.getElementById('processBtn');
-            const resultLabel = document.getElementById('resultLabel');
+            const subModeBar = document.getElementById('subModeBar');
+            const ttsInfo = document.getElementById('ttsInfo');
+            const ttsSection = document.getElementById('ttsSection');
 
             if (mode === 'tts') {
                 ttsToggle.style.background = 'var(--primary)';
@@ -353,106 +745,178 @@
                 s2sToggle.style.background = 'transparent';
                 s2sToggle.style.color = 'var(--text-dim)';
 
-                performanceSection.style.display = 'none';
-                ttsInputGroup.style.display = 'block';
-                ttsControls.style.display = 'grid';
-                s2sControls.style.display = 'none';
-                processBtn.textContent = 'Clone Voice';
-                resultLabel.textContent = 'Success! Listen to your clone:';
+                subModeBar.classList.remove('visible');
+                ttsInfo.classList.add('visible');
+                ttsSection.style.display = 'block';
+
+                document.getElementById('smartMimicSection').style.display = 'none';
+                document.getElementById('rvcMimicSection').style.display = 'none';
+                document.getElementById('smartMimicInfo').classList.remove('visible');
+                document.getElementById('rvcMimicInfo').classList.remove('visible');
+
+                document.getElementById('processBtn').textContent = '🗣 Clone Voice';
             } else {
                 s2sToggle.style.background = 'var(--primary)';
                 s2sToggle.style.color = 'white';
                 ttsToggle.style.background = 'transparent';
                 ttsToggle.style.color = 'var(--text-dim)';
 
-                performanceSection.style.display = 'block';
-                ttsInputGroup.style.display = 'none';
-                ttsControls.style.display = 'none';
-                s2sControls.style.display = 'grid';
-                processBtn.textContent = 'Mimic Accent & Tone';
-                resultLabel.textContent = 'Success! Listen to your performance clone:';
+                subModeBar.classList.add('visible');
+                ttsInfo.classList.remove('visible');
+                ttsSection.style.display = 'none';
+
+                setMimicryMode(mimicryMode);
             }
+            document.getElementById('result').classList.remove('active');
+            document.getElementById('status').textContent = '';
         }
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                selectedFile = file;
-                document.getElementById('fileName').textContent = file.name;
-            }
+        function setMimicryMode(subMode) {
+            mimicryMode = subMode;
+            document.getElementById('smartMimicBtn').classList.toggle('active', subMode === 'smart');
+            document.getElementById('rvcMimicBtn').classList.toggle('active', subMode === 'rvc');
+
+            document.getElementById('smartMimicSection').style.display = subMode === 'smart' ? 'block' : 'none';
+            document.getElementById('rvcMimicSection').style.display = subMode === 'rvc' ? 'block' : 'none';
+            document.getElementById('smartMimicInfo').classList.toggle('visible', subMode === 'smart');
+            document.getElementById('rvcMimicInfo').classList.toggle('visible', subMode === 'rvc');
+
+            document.getElementById('processBtn').textContent =
+                subMode === 'smart' ? '🎭 Mimic Accent & Voice' : '🎛 Convert with RVC';
         }
 
-        function handlePerfSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                performanceFile = file;
-                document.getElementById('perfName').textContent = file.name;
-            }
-        }
-
+        // ──────────────────────────────────────────────
+        // Main process function
+        // ──────────────────────────────────────────────
         async function processVoice() {
-            if (!selectedFile) {
-                alert("Please select a target voice audio file first.");
-                return;
-            }
-
-            if (mode === 's2s' && !performanceFile) {
-                alert("Please select a performance audio file for mimicry.");
-                return;
-            }
-
             const btn = document.getElementById('processBtn');
             const loader = document.getElementById('loader');
             const status = document.getElementById('status');
             const result = document.getElementById('result');
             const audioPlayer = document.getElementById('audioPlayer');
-            const transcribedText = document.getElementById('transcribedText');
+            const inputPlayer = document.getElementById('inputPlayer');
+            const transcribedDiv = document.getElementById('transcribedText');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const inputCardLabel = document.getElementById('inputCardLabel');
+            const outputCardLabel = document.getElementById('outputCardLabel');
+            const resultLabel = document.getElementById('resultLabel');
+
+            // ── Validation ──
+            if (mode === 'tts') {
+                if (!files.ttsVoice) { alert('Please upload a target voice audio file.'); return; }
+            } else if (mimicryMode === 'smart') {
+                if (!files.smartTarget) { alert('Please upload the target person\'s voice (Step ①).'); return; }
+                const typedText = document.getElementById('smartMimicText').value.trim();
+                if (!typedText && !files.smartPerf) {
+                    alert('Please either type what to say (② text box) or upload your performance audio.');
+                    return;
+                }
+            } else {
+                if (!files.rvcTarget) { alert('Please upload a target voice audio file.'); return; }
+                if (!files.rvcPerf) { alert('Please upload your performance audio.'); return; }
+            }
 
             btn.disabled = true;
             loader.style.display = 'block';
-            status.textContent = mode === 'tts' ? 'Transcribing and synthesizing...' : 'Converting voice while preserving accent...';
+            status.className = 'status-msg';
             result.classList.remove('active');
 
+            // Revoke previous object URL
+            if (inputObjectUrl) { URL.revokeObjectURL(inputObjectUrl); inputObjectUrl = null; }
+
             const formData = new FormData();
-            let endpoint = '/process-voice';
+            let endpoint = '';
+            let inputFileForPreview = null;
 
             if (mode === 'tts') {
-                formData.append('file', selectedFile);
+                endpoint = '/process-voice';
+                formData.append('file', files.ttsVoice);
                 formData.append('accent', document.getElementById('accent').value);
                 formData.append('tone', document.getElementById('tone').value);
                 formData.append('custom_text', document.getElementById('customText').value);
+                inputFileForPreview = files.ttsVoice;
+                inputCardLabel.textContent = 'Target Voice (Input)';
+                outputCardLabel.textContent = 'Cloned Output';
+                resultLabel.textContent = '✅ Compare: Input → Cloned';
+                status.textContent = '⏳ Transcribing and synthesizing…';
+
+            } else if (mimicryMode === 'smart') {
+                const typedText = document.getElementById('smartMimicText').value.trim();
+                endpoint = '/mimic-voice';
+                formData.append('target_voice_file', files.smartTarget);
+                formData.append('custom_text', typedText);
+                if (files.smartPerf) {
+                    formData.append('performance_file', files.smartPerf);
+                }
+                // For input preview: show typed text in left card or the perf audio
+                inputFileForPreview = files.smartPerf || null;
+                inputCardLabel.textContent = typedText ? '② Typed Text (Input)' : '② Your Performance (Input)';
+                outputCardLabel.textContent = '✨ Mimic Output';
+                resultLabel.textContent = '✅ Compare: Input → Mimicked';
+                status.textContent = typedText
+                    ? '⏳ Synthesizing with target voice…'
+                    : '⏳ Transcribing your performance and re-synthesizing with target voice…';
+
             } else {
                 endpoint = '/convert-voice';
-                formData.append('performance_file', performanceFile);
-                formData.append('target_voice_file', selectedFile);
+                formData.append('performance_file', files.rvcPerf);
+                formData.append('target_voice_file', files.rvcTarget);
                 formData.append('pitch_shift', document.getElementById('pitchShift').value);
                 formData.append('index_rate', document.getElementById('indexRate').value);
+                formData.append('filter_radius', document.getElementById('filterRadius').value);
+                formData.append('protect', document.getElementById('protect').value);
+                inputFileForPreview = files.rvcPerf;
+                inputCardLabel.textContent = 'Your Performance (Input)';
+                outputCardLabel.textContent = 'RVC Converted Output';
+                resultLabel.textContent = '✅ Compare: Performance → RVC Output';
+                status.textContent = '⏳ Running RVC voice conversion…';
+            }
+
+            // Show input preview: use perf audio if available; skip if text-only
+            if (inputFileForPreview) {
+                inputObjectUrl = URL.createObjectURL(inputFileForPreview);
+                inputPlayer.src = inputObjectUrl;
+            } else {
+                // Text-only mode: hide the input player, show nothing
+                inputPlayer.src = '';
+                inputPlayer.style.display = 'none';
             }
 
             try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch(endpoint, { method: 'POST', body: formData });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || 'Processing failed');
+                    const err = await response.json().catch(() => ({ detail: 'Unknown server error' }));
+                    throw new Error(err.detail || 'Processing failed');
                 }
 
                 const data = await response.json();
-
-                // The API returns /audio/output/{filename}
-                // But we mounted it at /output (or /static/output)
-                const audioUrl = data.output_url.replace('/audio/output/', '/static/output/');
+                const audioUrl = (data.output_url || '').replace('/audio/output/', '/static/output/');
 
                 audioPlayer.src = audioUrl;
-                transcribedText.textContent = data.text ? '"' + data.text + '"' : (data.model_used ? 'Using model: ' + data.model_used : '');
+                downloadBtn.href = audioUrl;
+                downloadBtn.download = 'voicequest_output.wav';
+
+                // Show transcription or model info
+                if (data.transcribed_text) {
+                    transcribedDiv.textContent = '📝 Transcribed: "' + data.transcribed_text + '"';
+                } else if (data.text) {
+                    transcribedDiv.textContent = '"' + data.text + '"';
+                } else if (data.model_used) {
+                    transcribedDiv.textContent = 'RVC Model: ' + data.model_used;
+                } else {
+                    transcribedDiv.textContent = '';
+                }
+
                 result.classList.add('active');
-                status.textContent = 'Done!';
+                // Restore the input player visibility in case it was hidden
+                inputPlayer.style.display = 'block';
+                status.textContent = '';
+
             } catch (error) {
                 console.error(error);
-                status.textContent = 'Error: ' + error.message;
+                status.className = 'status-msg error';
+                status.textContent = '❌ Error: ' + error.message;
             } finally {
                 btn.disabled = false;
                 loader.style.display = 'none';
