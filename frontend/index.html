@@ -253,6 +253,53 @@
             resize: none;
         }
 
+        /* ── Speed Slider ── */
+        .speed-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+        }
+
+        .speed-row label {
+            margin: 0;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.78rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to right, var(--primary) 0%, rgba(255, 255, 255, 0.1) 0%);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+            cursor: pointer;
+        }
+
+        .speed-val {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 2.8rem;
+            text-align: right;
+        }
+
         /* ── Buttons ── */
         button.btn-primary {
             width: 100%;
@@ -514,22 +561,38 @@
 
             <div class="controls" id="ttsControls">
                 <div class="control-group">
-                    <label>Accent</label>
-                    <select id="accent">
-                        <option value="neutral">Neutral</option>
-                        <option value="american">American</option>
-                        <option value="british">British</option>
-                        <option value="indian">Indian</option>
+                    <label>Language</label>
+                    <select id="ttsLanguage">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="es">🇪🇸 Spanish</option>
+                        <option value="fr">🇫🇷 French</option>
+                        <option value="de">🇩🇪 German</option>
+                        <option value="it">🇮🇹 Italian</option>
+                        <option value="pt">🇧🇷 Portuguese</option>
+                        <option value="ru">🇷🇺 Russian</option>
+                        <option value="ja">🇯🇵 Japanese</option>
+                        <option value="ko">🇰🇷 Korean</option>
+                        <option value="zh-cn">🇨🇳 Chinese</option>
                     </select>
                 </div>
                 <div class="control-group">
                     <label>Tone</label>
                     <select id="tone">
-                        <option value="calm">Calm</option>
-                        <option value="energetic">Energetic</option>
-                        <option value="dramatic">Dramatic</option>
+                        <option value="calm">😌 Calm</option>
+                        <option value="energetic">⚡ Energetic (+15% speed)</option>
+                        <option value="dramatic">🎭 Dramatic (slower)</option>
+                        <option value="whisper">🤫 Whisper (slow)</option>
+                        <option value="cheerful">😄 Cheerful (+10% speed)</option>
                     </select>
                 </div>
+            </div>
+
+            <!-- Speed Slider (TTS) -->
+            <div class="speed-row">
+                <label for="ttsSpeed">🎚 Speed</label>
+                <input type="range" id="ttsSpeed" min="0.8" max="1.2" step="0.05" value="1.0"
+                    oninput="updateSlider('ttsSpeed','ttsSpeedVal')">
+                <span class="speed-val" id="ttsSpeedVal">1.0×</span>
             </div>
         </div>
 
@@ -581,6 +644,33 @@
                 <div class="upload-name" id="perfInputSmartName">Upload your own recording to transcribe</div>
                 <input type="file" id="perfInputSmart" accept="audio/*"
                     onchange="handleFileSelect(event, 'smart-perf')">
+            </div>
+
+            <!-- Language + Speed row (Smart Mimic) -->
+            <div class="controls" style="margin-top:0.75rem;">
+                <div class="control-group">
+                    <label>Output Language</label>
+                    <select id="smartLanguage">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="es">🇪🇸 Spanish</option>
+                        <option value="fr">🇫🇷 French</option>
+                        <option value="de">🇩🇪 German</option>
+                        <option value="it">🇮🇹 Italian</option>
+                        <option value="pt">🇧🇷 Portuguese</option>
+                        <option value="ru">🇷🇺 Russian</option>
+                        <option value="ja">🇯🇵 Japanese</option>
+                        <option value="ko">🇰🇷 Korean</option>
+                        <option value="zh-cn">🇨🇳 Chinese</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>🎚 Speed</label>
+                    <div style="display:flex;align-items:center;gap:0.5rem;padding-top:0.3rem;">
+                        <input type="range" id="smartSpeed" min="0.8" max="1.2" step="0.05" value="1.0"
+                            oninput="updateSlider('smartSpeed','smartSpeedVal')">
+                        <span class="speed-val" id="smartSpeedVal">1.0×</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -831,9 +921,11 @@
             if (mode === 'tts') {
                 endpoint = '/process-voice';
                 formData.append('file', files.ttsVoice);
-                formData.append('accent', document.getElementById('accent').value);
+                formData.append('accent', 'neutral');   // kept for back-compat
                 formData.append('tone', document.getElementById('tone').value);
                 formData.append('custom_text', document.getElementById('customText').value);
+                formData.append('language', document.getElementById('ttsLanguage').value);
+                formData.append('speed', document.getElementById('ttsSpeed').value);
                 inputFileForPreview = files.ttsVoice;
                 inputCardLabel.textContent = 'Target Voice (Input)';
                 outputCardLabel.textContent = 'Cloned Output';
@@ -845,6 +937,8 @@
                 endpoint = '/mimic-voice';
                 formData.append('target_voice_file', files.smartTarget);
                 formData.append('custom_text', typedText);
+                formData.append('language', document.getElementById('smartLanguage').value);
+                formData.append('speed', document.getElementById('smartSpeed').value);
                 if (files.smartPerf) {
                     formData.append('performance_file', files.smartPerf);
                 }
@@ -922,6 +1016,28 @@
                 loader.style.display = 'none';
             }
         }
+
+        // ──────────────────────────────────────────────
+        // Slider helper — keeps track fill + value label in sync
+        // ──────────────────────────────────────────────
+        function updateSlider(sliderId, valId) {
+            const slider = document.getElementById(sliderId);
+            const val = parseFloat(slider.value);
+            document.getElementById(valId).textContent = val.toFixed(2) + '×';
+            // Update the gradient fill to reflect current position
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            const pct = ((val - min) / (max - min)) * 100;
+            slider.style.background =
+                `linear-gradient(to right, var(--primary) ${pct}%, rgba(255,255,255,0.1) ${pct}%)`;
+        }
+        // Initialise slider fills on page load
+        window.addEventListener('load', () => {
+            ['ttsSpeed', 'smartSpeed'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) updateSlider(id, id.replace('Speed', 'SpeedVal'));
+            });
+        });
     </script>
 
 </body>

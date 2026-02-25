@@ -75,8 +75,19 @@ async def process_voice(
     file: UploadFile = File(...),
     accent: str = Form("neutral"),
     tone: str = Form("calm"),
-    custom_text: str = Form(None)
+    custom_text: str = Form(None),
+    language: str = Form(None),
+    speed: float = Form(1.0)
 ):
+    """
+    TTS Clone mode.
+    - file: voice reference audio
+    - accent: accent label (neutral, british, indian, spanish, etc.)
+    - tone: tone label (calm, energetic, dramatic, whisper, cheerful)
+    - custom_text: text to synthesise (if blank, audio is transcribed instead)
+    - language: XTTS language code override (e.g. 'en', 'fr', 'hi')
+    - speed: speech rate multiplier 0.8 – 1.2 (default 1.0)
+    """
     try:
         # Save uploaded file with a unique name
         file_id = str(uuid.uuid4())
@@ -100,8 +111,15 @@ async def process_voice(
         output_filename = f"{file_id}_output.wav"
         output_path = os.path.join(OUTPUT_DIR, output_filename)
 
-        print(f"Synthesizing to {output_path} with accent={accent}, tone={tone}...")
-        synthesize(text, input_path, accent=accent, tone=tone, output_path=output_path)
+        print(f"Synthesizing to {output_path} with accent={accent}, tone={tone}, "
+              f"language={language}, speed={speed}...")
+        synthesize(
+            text, input_path,
+            accent=accent, tone=tone,
+            output_path=output_path,
+            language=language if language and language.strip() else None,
+            speed=speed
+        )
 
         if not os.path.exists(output_path):
             raise HTTPException(status_code=500, detail="Synthesis failed to produce output file")
@@ -122,13 +140,17 @@ async def process_voice(
 async def mimic_voice_endpoint(
     target_voice_file: UploadFile = File(...),
     performance_file: UploadFile = File(None),
-    custom_text: str = Form(None)
+    custom_text: str = Form(None),
+    language: str = Form("en"),
+    speed: float = Form(1.0)
 ):
     """
-    Smart Mimic: accepts EITHER custom_text OR performance_file (or both).
-    - custom_text provided → synthesize it directly with XTTS using target voice (fast)
-    - performance_file provided → transcribe it first, then synthesize with target voice
-    - Both provided → custom_text takes priority (skip transcription)
+    Smart Mimic: accepts EITHER custom_text OR performance_file.
+    - custom_text provided → synthesise directly with XTTS (fast)
+    - performance_file → transcribe first, then synthesise
+    - Both provided → custom_text takes priority
+    - language: XTTS language code (default 'en')
+    - speed: speech rate 0.8 – 1.2 (default 1.0)
     """
     try:
         file_id = str(uuid.uuid4())
@@ -145,29 +167,30 @@ async def mimic_voice_endpoint(
         text_used = custom_text.strip() if custom_text and custom_text.strip() else None
 
         if text_used:
-            # Fast path: use typed text directly — no transcription needed
-            print(f"[Smart Mimic] Using custom text: {text_used[:80]}..." if len(text_used) > 80 else f"[Smart Mimic] Using custom text: {text_used}")
-            from src.synthesize import tts as _tts
-            _tts.tts_to_file(
-                text=text_used,
-                speaker_wav=target_path,
-                language="en",
-                file_path=output_path
-            )
+            # Fast path: typed text → synthesise directly (with preprocessing + postprocessing)
+            print(f"[Smart Mimic] Custom text path. speed={speed}, lang={language}")
+            from src.audio_processor import preprocess_speaker_wav, postprocess_output
+            from src.synthesize import _synthesize_long_text
+            clean_target = preprocess_speaker_wav(target_path)
+            _synthesize_long_text(text_used, clean_target, language or "en", output_path, speed=speed)
+            postprocess_output(output_path)
+            if clean_target != target_path and os.path.exists(clean_target):
+                os.remove(clean_target)
             transcribed_text = text_used
 
         elif performance_file and performance_file.filename:
-            # Transcription path: transcribe performance, then synthesize
+            # Transcription path: transcribe performance, then synthesise
             perf_filename = f"{file_id}_perf_{performance_file.filename}"
             perf_path = os.path.join(UPLOAD_DIR, perf_filename)
             with open(perf_path, "wb") as buffer:
                 shutil.copyfileobj(performance_file.file, buffer)
 
-            print(f"[Smart Mimic] Transcribing performance: {perf_path}")
+            print(f"[Smart Mimic] Transcription path. speed={speed}, lang={language}")
             _, transcribed_text = mimic_voice(
                 performance_wav=perf_path,
                 target_voice_wav=target_path,
-                output_path=output_path
+                output_path=output_path,
+                speed=speed
             )
         else:
             raise HTTPException(
