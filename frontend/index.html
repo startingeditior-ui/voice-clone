@@ -108,6 +108,7 @@
             font-weight: 800;
             background: linear-gradient(90deg, #fff, #a5b4fc);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent
         }
 
@@ -569,6 +570,7 @@
         input[type=range] {
             flex: 1;
             -webkit-appearance: none;
+            appearance: none;
             height: 4px;
             border-radius: 2px;
             outline: none;
@@ -741,6 +743,7 @@
         .result-title span {
             background: linear-gradient(90deg, var(--green), #4ade80);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -1645,7 +1648,8 @@
                             <div class="guide-tip"><span class="guide-tip-icon">✅</span> Use WAV, MP3, or OGG files.
                                 Mono recordings work best.</div>
                             <div class="guide-tip"><span class="guide-tip-icon">✅</span> Leave the text box
-                                <strong>empty</strong> to automatically clone what the person said in the audio.</div>
+                                <strong>empty</strong> to automatically clone what the person said in the audio.
+                            </div>
                             <div class="guide-tip"><span class="guide-tip-icon">✅</span> Type your own text to make the
                                 voice say anything you want.</div>
                             <div class="guide-tip"><span class="guide-tip-icon">⚡</span> Speed 1.0× is natural. Try 0.9×
@@ -1661,7 +1665,8 @@
                         <div class="guide-card smart">
                             <div class="guide-card-head">🎯 Best Practices</div>
                             <p>This mode re-speaks content using someone else's voice identity via zero-shot AI —
-                                <strong>no model training needed</strong>.</p>
+                                <strong>no model training needed</strong>.
+                            </p>
                             <div class="guide-tip"><span class="guide-tip-icon">①</span> Upload the <strong>target
                                     voice</strong> (who you want to sound like). Longer clips = better voice
                                 fingerprint.</div>
